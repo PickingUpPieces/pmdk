@@ -113,6 +113,8 @@ void pmemlog_rewind(PMEMlogpool *plp);
 void pmemlog_walk(PMEMlogpool *plp, size_t chunksize,
 	int (*process_chunk)(const void *buf, size_t len, void *arg),
 	void *arg);
+void * pmemlog_read(PMEMlogpool *plp, size_t log_offset);
+int pmemlog_write(PMEMlogpool *plp, const void *buf, size_t buf_length, size_t log_offset);
 
 /*
  * Passing NULL to pmemlog_set_funcs() tells libpmemlog to continue to use the
