@@ -691,10 +691,9 @@ pmemlog_read(PMEMlogpool *plp, size_t log_offset)
 		data_offset >= start_offset ) {
 		return (void *) &data[data_offset];
 	} else {
-        printf("requested address & size out of range\n");	
+        printf("pmemlog_read: requested address & size out of range\n");	
 		return NULL;
     }
-	// TODO: Check popcount value
 }
 
 /*
@@ -707,7 +706,7 @@ pmemlog_write(PMEMlogpool *plp, const void *buf, size_t buf_length, size_t log_o
 	LOG(3, "plp %p buf %p count %zu log_offset %zu", plp, buf, buf_length, log_offset);
 
 	if (plp->rdonly) {
-		ERR("can't append to read-only log");
+		ERR("pmemlog_write: can't append to read-only log");
 		errno = EROFS;
 		return -1;
 	}
@@ -721,13 +720,10 @@ pmemlog_write(PMEMlogpool *plp, const void *buf, size_t buf_length, size_t log_o
 	/* make sure we don't write past the available space */
 	if ((data_offset + buf_length) > end_offset) {
 		errno = ENOSPC;
-		ERR("!pmemlog_append");
+		ERR("!pmemlog_write: writing out of bounds");
 		ret = -1;
 		goto end;
 	}
-
-	// TODO: Calculate popcount of buf
-	// TODO: Write popcount into log first
 
 	/*
 	 * unprotect the log space range, where the new data will be stored
