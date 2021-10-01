@@ -34,5 +34,6 @@ EXPORTS
 	pmemlog_walk
 	pmemlog_read
 	pmemlog_write
+	pmemlog_zeroing
 
 	DllMain

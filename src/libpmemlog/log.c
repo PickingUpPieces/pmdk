@@ -745,6 +745,41 @@ end:
 	return ret;
 }
 
+/*
+ * pmemlog_zeroing -- Flushes the log file with zeros 
+ */
+void
+pmemlog_zeroing(PMEMlogpool *plp)
+{
+	if (plp->rdonly) {
+		ERR("pmemlog_zeroing: can't zero read-only log");
+		errno = EROFS;
+		return;
+	}
+
+	/* get the current values */
+	uint64_t start_offset = le64toh(plp->start_offset);
+	uint64_t end_offset = le64toh(plp->end_offset);
+	uint64_t log_size = end_offset - start_offset;
+	char *data = plp->addr;
+
+	/*
+	 * unprotect the log space range, where the new data will be stored
+	 * (debug version only)
+	 */
+	RANGE_RW(&data[start_offset], log_size, plp->is_dev_dax);
+
+	if (plp->is_pmem) {
+		pmem_memset_nodrain(&data[start_offset], 0, log_size);
+		pmem_drain();
+    } else {
+	    memset(&data[start_offset], 0, log_size); 
+		pmem_msync(&data[start_offset], log_size);
+    }
+
+	/* protect the log space range (debug version only) */
+	RANGE_RO(&data[start_offset], log_size, plp->is_dev_dax);
+}
 
 /*
  * pmemlog_checkU -- log memory pool consistency check

@@ -24,6 +24,7 @@ LIBPMEMLOG_1.0 {
 		pmemlog_walk;
 		pmemlog_read;
 	    pmemlog_write;
+		pmemlog_zeroing;
 		fault_injection;
 	local:
 		*;
